@@ -5,19 +5,27 @@
 #include <iostream>
 using namespace std;
 
-bool areValid(const vector<int>& reports, const vector<int>& sortedReports) {
-    int previous = reports[0];
-    for (int i = 1; i < reports.size(); i++) {
-        if (reports[i] != sortedReports[i]) return false;
-        if (int difference = abs(reports[i] - previous); difference > 3 || difference < 1) return false;
-        previous = reports[i];
+bool equal(const vector<int>& reports, const vector<int>& sorted_reports) {
+    for (int i = 0; i < reports.size(); i++) {
+        if (reports[i] != sorted_reports[i]) return false;
+        if (i + 1 == reports.size()) return true;
+        if (const int difference = abs(reports[i] - reports[i + 1]); difference > 3 or difference < 1) return false;
     }
-
     return true;
 }
 
+bool safe(const vector<int>& reports) {
+    vector<int> sorted_reports = reports;
+    ranges::sort(sorted_reports);
+    if (equal(reports, sorted_reports)) return true;
+
+    ranges::reverse(sorted_reports);
+    return equal(reports, sorted_reports);
+}
+
 int main() {
-    int save = 0;
+    int part1 = 0;
+    int part2 = 0;
     ifstream input{"../../data/2.txt"};
 
     string line;
@@ -30,17 +38,23 @@ int main() {
             reports.push_back(stoi(word));
         }
 
-        vector<int> sortedReports(reports);
-        sort(sortedReports.begin(), sortedReports.end());
-        if (areValid(reports, sortedReports)) {
-            save += 1;
+        if (safe(reports)) {
+            part1 += 1;
+            part2 += 1;
             continue;
         }
 
-        reverse(sortedReports.begin(), sortedReports.end());
-        if (!areValid(reports, sortedReports)) continue;
-        save += 1;
+        for (int i = 0; i < reports.size(); i++) {
+            vector<int> shorterReports(reports.begin(), reports.begin() + i);
+            shorterReports.insert(shorterReports.end(), reports.begin() + i + 1, reports.end());
+
+            if (safe(shorterReports)) {
+                part2 += 1;
+                break;
+            };
+        }
     }
 
-    cout << to_string(save) << endl;
+    cout << to_string(part1) << endl;
+    cout << to_string(part2) << endl;
 }

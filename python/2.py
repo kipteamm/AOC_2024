@@ -1,29 +1,26 @@
-def are_valid(reports: list, sorted_reports: list) -> bool:
-    previous = reports[0]
+def safe(reports: list) -> bool:
+    sorted_reports = sorted(reports)
 
-    for i in range(1, len(reports)):
-        if reports[i] != sorted_reports[i]:
-            return False
-        
-        difference = abs(reports[i] - previous)
-        if difference < 1 or difference > 3:
-            return False
-        
-        previous = reports[i]
-        
-    return True
+    if not (reports == sorted_reports or reports == list(reversed(sorted_reports))):
+        return False
 
+    return not any(a == b or abs(a - b) > 3 for a, b in zip(reports, reports[1:]))
 
-safe = 0
+part_1, part_2 = 0, 0
 for line in open("../data/2.txt").read().splitlines():
     reports = list(map(int, line.split(" ")))
-    sorted_repots = sorted(reports)
 
-    if are_valid(reports, sorted_repots):
-        safe += 1
+    if safe(reports):
+        part_1 += 1
+        part_2 += 1
         continue
 
-    sorted_repots.reverse()
-    safe += int(are_valid(reports, sorted_repots))
+    for item in range(len(line)):
+        if safe(reports[:item] + reports[item + 1:]):
+            part_2 += 1
+            break
 
-print(safe)
+print(part_1)
+# >>> 369
+print(part_2)
+# >>> 428
