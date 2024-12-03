@@ -5,20 +5,41 @@ using namespace std;
 
 
 int main() {
-    regex mul_match(R"(mul\((\d{1,3}),(\d{1,3})\))");
+    regex multi_match(R"(mul\((\d{1,3}),(\d{1,3})\)|do\(\)|don't\(\))");
     ifstream input{"../../data/3.txt"};
 
-    int total = 0;
+    int part1 = 0;
+    int part2 = 0;
+    bool allowed = true;
+
     string line;
     while (getline(input, line)) {
-        for (std::sregex_iterator it(line.begin(), line.end(), mul_match), end; it != end; ++it) {
-            int a = std::stoi((*it)[1].str());
-            int b = std::stoi((*it)[2].str());
+        for (std::sregex_iterator it(line.begin(), line.end(), multi_match), end; it != end; ++it) {
+            const auto& match = *it;
+            const string matchName = match.str();
 
-            total += a * b;
+            if (matchName == "don't()") {
+                allowed = false;
+                continue;
+            }
+
+            if (matchName == "do()") {
+                allowed = true;
+                continue;
+            }
+
+            int a = std::stoi(match[1].str());
+            int b = std::stoi(match[2].str());
+            int value = a * b;
+
+            part1 += value;
+            if (!allowed) continue;
+            part2 += value;
         }
     }
 
-    cout << to_string(total) << endl;
+    cout << to_string(part1) << endl;
     // >>> 173517243
+    cout << to_string(part2) << endl;
+    // >>> 100450138
 }
